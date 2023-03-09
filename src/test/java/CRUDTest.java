@@ -4,6 +4,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -60,17 +61,17 @@ public class CRUDTest {
         params.put("age", 56);
 
         given()
-                .spec(requestSpec)
-                .contentType(JSON)
-                .body(params)
-                .when()
-                .post("users")
-                .then()
-                .statusCode(201)   // status created
-                .log().all()
-                .body("id", is(notNullValue()))   // deve vim não null
-                .body("name", is("USuario map"))
-                .body("age", is(56));
+            .spec(requestSpec)
+            .contentType(JSON)
+            .body(params)
+         .when()
+            .post("users")
+        .then()
+            .statusCode(201)   // status created
+            .log().all()
+            .body("id", is(notNullValue()))   // deve vim não null
+            .body("name", is("USuario map"))
+            .body("age", is(56));
     }
 
     @Test
@@ -86,8 +87,28 @@ public class CRUDTest {
             .statusCode(201)   // status created
             .log().all()
             .body("id", is(notNullValue()))   // deve vim não null
-            .body("name", is("USuario map"))
-            .body("age", is(56));
+            .body("name", is(usuario.getName()))
+            .body("age", is(37));
+    }
+    @Test
+    public void deveDeserializarObjetoAoSalvarUsuario(){
+        Usuario usuario = new Usuario("Usuario deserializado", 37);
+
+        Usuario usuarioInserido =
+          given()
+            .spec(requestSpec)
+            .contentType(JSON)
+            .body(usuario)
+        .when()
+            .post("users")
+        .then()
+            .log().all()
+            .statusCode(201)   // status created
+            .extract().body().as(Usuario.class);
+
+        Assert.assertThat(usuarioInserido.getId(), notNullValue());
+        Assert.assertEquals("Usuario deserializado", usuarioInserido.getName());
+        Assert.assertThat(usuarioInserido.getAge(), is(37));
     }
     @Test
     public void deveSalvarUsuarioViaXML(){
@@ -103,6 +124,45 @@ public class CRUDTest {
             .body("user.@id", is(notNullValue()))   // deve vim não null
             .body("user.name", is("Dr Jose"))
             .body("user.age", is("61"));
+    }
+
+    @Test
+    public void deveDeserializarXMLAoSalvarUsuario(){
+        Usuario usuario = new Usuario("Usuario XML", 43);
+
+        Usuario usuarioInserido =
+        given()
+            .log().all()
+            .contentType(XML)
+            .body(usuario)
+        .when()
+            .post("usersXML")
+        .then()
+            .log().all()
+            .statusCode(201)   // status created
+            .extract().body().as(Usuario.class);
+
+        Assert.assertThat(usuarioInserido.getId(), notNullValue());
+        Assert.assertEquals("Usuario XML", usuarioInserido.getName());
+        Assert.assertThat(usuarioInserido.getAge(), is(43));
+
+    }
+    @Test
+    public void deveSalvarUsuarioViaXMLUsandoObjeto(){
+        Usuario usuario = new Usuario("Usuario XML", 43);
+
+        given()
+                .log().all()
+                .contentType(XML)
+                .body(usuario)
+                .when()
+                .post("usersXML")
+                .then()
+                .log().all()
+                .statusCode(201)   // status created
+                .body("user.@id", is(notNullValue()))   // deve vim não null
+                .body("user.name", is("Usuario XML"))
+                .body("user.age", is("43"));
     }
 
     @Test
