@@ -1,12 +1,12 @@
 import io.restassured.RestAssured;
-import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.*;
+import static org.hamcrest.Matchers.*;
 
-public class EnvioDadosQueryTest {
+public class EnviarDadosViaQueryTest {
 
     @BeforeClass
     public static void setup() {
@@ -15,15 +15,7 @@ public class EnvioDadosQueryTest {
 //        RestAssured.port = "443";
     }
 
-    @Test
-    public void empldwqdoSDs(){
 
-        given()
-        .when()
-        .then()
-        ;
-
-    }
     @Test
     public void deveEnviarValorViaQuery(){
         given()
@@ -46,6 +38,19 @@ public class EnvioDadosQueryTest {
             .log().all()
             .statusCode(200)
             .contentType(XML)
-            .contentType(Matchers.containsString("utf-8"));
+            .contentType(containsString("utf-8"));
+    }
+    @Test
+    public void deveEnviarValorViaQueryViaHeader(){
+        given()
+            .log().all()
+        .when()
+            .accept(HTML)
+            .get("users")
+        .then()
+            .log().all()
+            .statusCode(200)
+            .contentType(HTML)
+        ;
     }
 }
