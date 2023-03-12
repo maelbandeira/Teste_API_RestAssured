@@ -1,4 +1,5 @@
 import io.restassured.matcher.RestAssuredMatchers;
+import io.restassured.module.jsv.JsonSchemaValidator;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXParseException;
@@ -27,6 +28,20 @@ public class SchemaTest {
             .log().all()
             .statusCode(200)
             .body(RestAssuredMatchers.matchesXsdInClasspath("nome do arquivo em xsd"))
+        ;
+    }
+
+    @Test
+    public void deveValildarSchemaJson() {
+
+        given()
+            .log().all()
+        .when()
+            .get("users")
+        .then()
+            .log().all()
+            .statusCode(200)
+            .body(JsonSchemaValidator.matchesJsonSchemaInClasspath("nome do arquivo"))
         ;
     }
 
